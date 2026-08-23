@@ -226,12 +226,22 @@
         }
 
         function signupFormHtml() {
+            // Explicit min/max on the date input: without these, Safari's
+            // native <input type="date"> validity check can misfire ("Invalid
+            // value") on well-formed dates mid-entry. max also client-side
+            // enforces the 18+ rule the server checks anyway.
+            const today = new Date();
+            const maxDob = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate())
+                .toISOString().slice(0, 10);
+            const minDob = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate())
+                .toISOString().slice(0, 10);
+
             return `
                 <form id="signup-form">
                     <div id="signup-msg"></div>
                     <div class="field"><label>Name</label><input type="text" id="su-name" required maxlength="60"></div>
                     <div class="field"><label>Email</label><input type="email" id="su-email" required></div>
-                    <div class="field"><label>Date of birth</label><input type="date" id="su-dob" required></div>
+                    <div class="field"><label>Date of birth</label><input type="date" id="su-dob" required min="${minDob}" max="${maxDob}"></div>
                     <div class="field"><label>Gender</label>
                         <select id="su-gender">
                             <option value="woman">Woman</option>
