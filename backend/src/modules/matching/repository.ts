@@ -84,6 +84,37 @@ export async function getNextForUser(userId: string) {
   );
 }
 
+export interface CandidatePreview {
+  display_name: string | null;
+  city: string | null;
+  summary: string;
+  core_values: string[];
+  communication_style: string;
+  relationship_goals: string;
+}
+
+/**
+ * Deliberately narrow: no email, no phone, no dealbreakers (those are a
+ * matching-time filter, not something to show a candidate about themselves).
+ * This is the only view another user ever gets of a candidate before a
+ * mutual match — matches src/providers/ai/gemini.ts's PersonalityProfile
+ * shape minus the fields we don't want exposed pre-match.
+ */
+export async function getCandidatePreview(candidateId: string): Promise<CandidatePreview | null> {
+  return queryOne<CandidatePreview>(
+    `select u.display_name,
+            u.city,
+            pp.profile->>'summary' as summary,
+            coalesce(pp.profile->'coreValues', '[]'::jsonb) as core_values,
+            pp.profile->>'communicationStyle' as communication_style,
+            pp.profile->>'relationshipGoals' as relationship_goals
+       from users u
+       join personality_profiles pp on pp.user_id = u.id
+      where u.id = $1`,
+    [candidateId],
+  );
+}
+
 export async function markPresented(id: string): Promise<void> {
   await query(
     "update match_candidates set presented_at = now() where id = $1 and presented_at is null",

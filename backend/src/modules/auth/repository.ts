@@ -6,6 +6,7 @@ export interface User {
   email: string;
   phone: string | null;
   phone_verified_at: string | null;
+  display_name: string | null;
   date_of_birth: string;
   gender: string | null;
   seeking: string[];
@@ -16,6 +17,7 @@ export interface User {
 
 export interface CreateUserInput {
   email: string;
+  displayName: string;
   dateOfBirth: string; // YYYY-MM-DD
   gender?: string | null;
   seeking?: string[];
@@ -33,11 +35,12 @@ export async function findUserById(id: string): Promise<User | null> {
 
 export async function createUser(input: CreateUserInput): Promise<User> {
   const row = await queryOne<User>(
-    `insert into users (email, date_of_birth, gender, seeking, city, waitlist_entry_id)
-     values ($1, $2, $3, $4, $5, $6)
+    `insert into users (email, display_name, date_of_birth, gender, seeking, city, waitlist_entry_id)
+     values ($1, $2, $3, $4, $5, $6, $7)
      returning *`,
     [
       input.email,
+      input.displayName,
       input.dateOfBirth,
       input.gender ?? null,
       input.seeking ?? [],

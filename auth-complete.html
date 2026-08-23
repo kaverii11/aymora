@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signing you in… | Aymora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/app.css">
+    <script>
+        const storedTheme = localStorage.getItem('theme');
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (storedTheme === 'light' || (!storedTheme && prefersLight)) {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    </script>
+</head>
+<body>
+    <div class="app-shell" style="max-width: 480px; text-align: center; padding-top: 120px;">
+        <h1 class="font-display" style="font-size: 2rem; margin-bottom: 32px;">aymora</h1>
+        <div id="status-area">
+            <div class="spinner"></div>
+            <p style="color: var(--text-muted);">Signing you in…</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+            ? 'http://localhost:8787'
+            : 'https://aymora-api.onrender.com';
+
+        async function completeSignIn() {
+            const statusArea = document.getElementById('status-area');
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+
+            if (!code) {
+                statusArea.innerHTML = '<div class="msg msg-error">No sign-in code found in this link.</div><a class="btn btn-primary btn-block" href="app.html">Back to sign in</a>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/exchange`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code }),
+                });
+
+                if (!res.ok) {
+                    statusArea.innerHTML = '<div class="msg msg-error">That sign-in link has expired or was already used. Request a new one below.</div><a class="btn btn-primary btn-block" href="app.html">Back to sign in</a>';
+                    return;
+                }
+
+                const data = await res.json();
+                localStorage.setItem('aymora_access_token', data.access_token);
+                localStorage.setItem('aymora_refresh_token', data.refresh_token);
+                localStorage.setItem('aymora_user', JSON.stringify(data.user));
+
+                window.location.href = 'app.html';
+            } catch (err) {
+                console.error('[aymora] sign-in exchange failed', err);
+                statusArea.innerHTML = '<div class="msg msg-error">Could not reach the server. Please try again.</div><a class="btn btn-primary btn-block" href="app.html">Back to sign in</a>';
+            }
+        }
+
+        completeSignIn();
+    </script>
+</body>
+</html>

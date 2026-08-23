@@ -94,6 +94,7 @@ export interface NextMatchResult {
   matchCandidateId: string;
   candidateId: string;
   score: number;
+  candidate: repo.CandidatePreview | null;
 }
 
 /** "One intentional introduction at a time" (landing page copy) — always at most one pending, unpresented candidate is surfaced. */
@@ -105,7 +106,14 @@ export async function getNextMatch(userId: string): Promise<NextMatchResult | nu
     await repo.markPresented(next.id);
   }
 
-  return { matchCandidateId: next.id, candidateId: next.candidate_id, score: Number(next.score) };
+  const candidate = await repo.getCandidatePreview(next.candidate_id);
+
+  return {
+    matchCandidateId: next.id,
+    candidateId: next.candidate_id,
+    score: Number(next.score),
+    candidate,
+  };
 }
 
 export type DecideOutcome = "recorded" | "not_found" | "mutual_match";

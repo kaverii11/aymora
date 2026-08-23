@@ -23,6 +23,7 @@ export class ValidationError extends Error {}
 
 export interface SignupInput {
   email: string;
+  displayName: string;
   dateOfBirth: string;
   gender?: string;
   seeking?: string[];
@@ -50,6 +51,7 @@ export async function signup(input: SignupInput): Promise<void> {
 
   const user = await repo.createUser({
     email,
+    displayName: input.displayName.trim(),
     dateOfBirth: input.dateOfBirth,
     gender: input.gender,
     seeking: input.seeking,
@@ -66,6 +68,10 @@ export async function signup(input: SignupInput): Promise<void> {
   }
 
   await sendMagicLink(user, "signup_verify");
+}
+
+export async function getUser(userId: string): Promise<User | null> {
+  return repo.findUserById(userId);
 }
 
 export async function requestLogin(email: string): Promise<void> {

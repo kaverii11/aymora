@@ -6,6 +6,7 @@ import * as service from "./service.js";
 
 const signupSchema = z.object({
   email: z.string().email(),
+  display_name: z.string().trim().min(1).max(60),
   date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD"),
   gender: z.string().optional(),
   seeking: z.array(z.string()).optional(),
@@ -26,6 +27,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     try {
       await service.signup({
         email: parsed.data.email,
+        displayName: parsed.data.display_name,
         dateOfBirth: parsed.data.date_of_birth,
         gender: parsed.data.gender,
         seeking: parsed.data.seeking,
@@ -63,7 +65,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       return reply.redirect(`${config.WEB_BASE_URL}/?auth=invalid`);
     }
 
-    return reply.redirect(`${config.WEB_BASE_URL}/auth/complete?code=${result.code}`);
+    return reply.redirect(`${config.WEB_BASE_URL}/auth-complete.html?code=${result.code}`);
   });
 
   app.post("/api/auth/exchange", async (request, reply) => {
@@ -92,6 +94,12 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       refresh_token: pair.refreshToken,
       user: toPublicUser(pair.user),
     });
+  });
+
+  app.get("/api/me", { preHandler: requireAuth }, async (request, reply) => {
+    const user = await service.getUser(request.userId!);
+    if (!user) return reply.code(404).send({ error: "not_found" });
+    return reply.send(toPublicUser(user));
   });
 
   app.post("/api/auth/logout", async (request, reply) => {
@@ -132,12 +140,14 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 function toPublicUser(user: {
   id: string;
   email: string;
+  display_name: string | null;
   onboarding_status: string;
   phone_verified_at: string | null;
 }) {
   return {
     id: user.id,
     email: user.email,
+    display_name: user.display_name,
     onboarding_status: user.onboarding_status,
     phone_verified: user.phone_verified_at !== null,
   };

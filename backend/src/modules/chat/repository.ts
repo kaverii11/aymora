@@ -42,13 +42,23 @@ export async function createConversation(matchId: string): Promise<Conversation>
 }
 
 export async function listMatchesForUser(userId: string): Promise<
-  Array<Match & { conversation_id: string; other_user_id: string }>
+  Array<
+    Match & {
+      conversation_id: string;
+      other_user_id: string;
+      other_display_name: string | null;
+      other_city: string | null;
+    }
+  >
 > {
   return query(
     `select m.*, c.id as conversation_id,
-            case when m.user_a_id = $1 then m.user_b_id else m.user_a_id end as other_user_id
+            ou.id as other_user_id,
+            ou.display_name as other_display_name,
+            ou.city as other_city
        from matches m
        join conversations c on c.match_id = m.id
+       join users ou on ou.id = (case when m.user_a_id = $1 then m.user_b_id else m.user_a_id end)
       where m.user_a_id = $1 or m.user_b_id = $1
       order by m.matched_at desc`,
     [userId],
