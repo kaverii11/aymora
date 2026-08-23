@@ -54,8 +54,7 @@ services:
   - type: web
     name: aymora-web
     runtime: static
-    plan: free
-    # Static sites have no `region` field: Render serves them from its CDN
-    # globally rather than from a single region like the web service above.
+    # Static sites have no `plan` or `region` field: hosting is inherently
+    # free and served from Render's global CDN, unlike the web service above.
     buildCommand: "true" # no build step: index.html is served as-is
     staticPublishPath: .
