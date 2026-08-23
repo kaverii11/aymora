@@ -55,6 +55,7 @@ services:
     name: aymora-web
     runtime: static
     plan: free
-    region: singapore
+    # Static sites have no `region` field: Render serves them from its CDN
+    # globally rather than from a single region like the web service above.
     buildCommand: "true" # no build step: index.html is served as-is
     staticPublishPath: .
