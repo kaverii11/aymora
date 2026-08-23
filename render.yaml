@@ -16,7 +16,10 @@ services:
     plan: free
     region: singapore
     rootDir: backend
-    buildCommand: npm install && npm run build
+    # --include=dev is required: with NODE_ENV=production set (below), npm's
+    # own default is to omit devDependencies on install, which would silently
+    # drop @types/node and typescript itself and break this TS build.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start:prod
     healthCheckPath: /health
     envVars:

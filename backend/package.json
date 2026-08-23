@@ -10,7 +10,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "start:prod": "npm run migrate && node dist/index.js",
+    "start:prod": "node dist/scripts/migrate.js && node dist/index.js",
     "migrate": "tsx src/scripts/migrate.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
