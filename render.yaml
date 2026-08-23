@@ -32,7 +32,12 @@ services:
       - key: GEMINI_MODEL
         value: gemini-3.6-flash
       - key: EMAIL_FROM
-        value: Aymora <hello@aymora.in>
+        # Resend rejects any send from an unverified domain outright (aymora.in
+        # isn't verified yet - blocked on DNS access). Its sandbox address
+        # works with no verification, but only delivers to the Resend
+        # account's own owner email. Switch back to hello@aymora.in once
+        # domain verification is done (see docs/backend-architecture-prompt.md).
+        value: Aymora <onboarding@resend.dev>
       - key: DATABASE_URL
         sync: false # Supabase connection string (Project Settings > Database)
       - key: REDIS_URL
