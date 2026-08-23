@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aymora | Meet the people you should've met.</title>
+    
+    <!-- Inline script to prevent theme flash on load -->
+    <script>
+        const storedTheme = localStorage.getItem('theme');
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (storedTheme === 'light' || (!storedTheme && prefersLight)) {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    </script>
+
+    <!-- Google Fonts: Cormorant Garamond & Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base / Dark Theme Variables */
+        :root {
+            /* Accents */
+            --accent-rose: #ff4d6d;
+            --accent-orange: #ff9a5c;
+            --accent-violet: #b76bff;
+            
+            /* Core Colors */
+            --bg-color: #0b0509;
+            --text-color: #fff5f7;
+            --text-muted: rgba(255, 245, 247, 0.65);
+            --border-color: rgba(255, 255, 255, 0.1);
+            
+            /* Backgrounds & UI */
+            --card-bg: rgba(255, 255, 255, 0.02);
+            --card-hover: rgba(255, 255, 255, 0.04);
+            --nav-badge-bg: rgba(255, 255, 255, 0.05);
+            --nav-badge-text: var(--text-color);
+            --marquee-bg: rgba(0, 0, 0, 0.2);
+            --icon-bg: rgba(255, 255, 255, 0.05);
+            
+            /* Banner */
+            --plus-bg: linear-gradient(135deg, rgba(80, 10, 30, 0.4), rgba(40, 5, 20, 0.8));
+            --plus-btn-bg: #fff5f7;
+            --plus-btn-text: #0b0509;
+            --plus-glow: rgba(255, 77, 109, 0.2);
+            
+            /* Aurora Effect */
+            --aurora-1: rgba(255, 77, 109, 0.15);
+            --aurora-2: rgba(183, 107, 255, 0.1);
+            
+            /* Typography */
+            --font-display: 'Cormorant Garamond', serif;
+            --font-body: 'Montserrat', sans-serif;
+            
+            /* Step Cards Specific */
+            --card-bg-1: var(--card-bg);
+            --card-border-1: var(--border-color);
+            --card-bg-2: var(--card-bg);
+            --card-border-2: var(--border-color);
+            --card-bg-3: var(--card-bg);
+            --card-border-3: var(--border-color);
+        }
+
+        /* Light Theme Variables */
+        [data-theme="light"] {
+            --bg-color: #fdf5f6;
+            --text-color: #1a0f14;
+            --text-muted: rgba(26, 15, 20, 0.7);
+            --border-color: rgba(255, 77, 109, 0.15);
+            
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-hover: rgba(255, 255, 255, 1);
+            --nav-badge-bg: rgba(255, 77, 109, 0.12);
+            --nav-badge-text: #1a0f14;
+            --marquee-bg: rgba(255, 77, 109, 0.03);
+            --icon-bg: rgba(255, 77, 109, 0.05);
+            
+            --plus-bg: linear-gradient(135deg, rgba(255, 235, 240, 0.8), rgba(255, 248, 250, 0.9));
+            --plus-btn-bg: #1a0f14;
+            --plus-btn-text: #fdf5f6;
+            --plus-glow: rgba(255, 77, 109, 0.1);
+
+            --aurora-1: rgba(255, 77, 109, 0.08);
+            --aurora-2: rgba(183, 107, 255, 0.05);
+
+            --card-bg-1: rgba(255, 77, 109, 0.05);
+            --card-border-1: rgba(255, 77, 109, 0.2);
+            --card-bg-2: rgba(255, 154, 92, 0.05);
+            --card-border-2: rgba(255, 154, 92, 0.2);
+            --card-bg-3: rgba(183, 107, 255, 0.05);
+            --card-border-3: rgba(183, 107, 255, 0.2);
+        }
+
+        /* Base styles */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            cursor: default;
+        }
+        a { color: inherit; text-decoration: none; }
+        h1, h2, h3, h4, .font-display { font-family: var(--font-display); font-weight: 500; }
+
+        /* Logos and Images */
+        .logo-icon {
+            border-radius: 20%;
+            object-fit: cover;
+            filter: invert(1);
+            transition: filter 0.4s ease;
+        }
+        [data-theme="light"] .logo-icon { filter: none; }
+
+        /* Cursor Glow */
+        #cursor-glow {
+            position: fixed; top: 0; left: 0;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--aurora-1) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%; pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 0; transition: opacity 0.3s ease; opacity: 0;
+            will-change: transform, left, top;
+        }
+
+        /* Background Aurora */
+        .aurora-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            overflow: hidden; z-index: 0; pointer-events: none; opacity: 0.8;
+        }
+        .aurora-blob {
+            position: absolute; border-radius: 50%; filter: blur(100px);
+            animation: drift 20s infinite alternate ease-in-out;
+            will-change: transform;
+        }
+        .aurora-1 {
+            width: 50vw; height: 50vw; min-width: 500px; min-height: 500px;
+            background: var(--aurora-1); top: -10%; left: -10%;
+            transition: background 0.5s ease;
+        }
+        .aurora-2 {
+            width: 60vw; height: 60vw; min-width: 600px; min-height: 600px;
+            background: var(--aurora-2); bottom: -20%; right: -10%;
+            animation-delay: -10s; transition: background 0.5s ease;
+        }
+        @keyframes drift {
+            0% { transform: translate3d(0, 0, 0) scale(1); }
+            100% { transform: translate3d(50px, 50px, 0) scale(1.1); }
+        }
+
+        /* Intro Splash (Restored Red Heart) */
+        .intro-splash {
+            position: fixed; inset: 0; background-color: var(--bg-color); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: splashFadeOut 0.8s ease forwards 2.3s; pointer-events: none;
+        }
+        .splash-heart {
+            width: 64px; height: 64px; margin-bottom: 24px;
+            fill: var(--accent-rose);
+            animation: heartbeat 1.2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+        .intro-splash h1 { font-size: 3rem; letter-spacing: 0.05em; font-weight: 400; }
+        @keyframes heartbeat {
+            0% { transform: scale(0.95); } 5% { transform: scale(1.1); }
+            39% { transform: scale(0.85); } 45% { transform: scale(1); }
+            60% { transform: scale(0.95); } 100% { transform: scale(0.95); }
+        }
+        @keyframes splashFadeOut { to { opacity: 0; visibility: hidden; } }
+
+        /* Container */
+        .container {
+            max-width: 1200px; margin: 0 auto;
+            /* Longhand, not shorthand `padding: 0 40px` on purpose: as a class
+               selector this beats the bare `section { padding: 180px 0; }`
+               type selector on specificity, and a shorthand match wins outright
+               (all 4 sides), silently zeroing every section's vertical padding
+               sitewide. Longhand here only ever touches left/right. */
+            padding-left: 40px; padding-right: 40px;
+            position: relative; z-index: 10;
+        }
+
+        /* Nav */
+        .nav-container {
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+            padding: 40px 0; position: relative; z-index: 100;
+        }
+        .nav-left { display: flex; justify-content: flex-start; }
+        .nav-center { display: flex; justify-content: center; }
+        .nav-right { display: flex; justify-content: flex-end; }
+        
+        .theme-toggle {
+            background: transparent; border: 1px solid var(--border-color);
+            border-radius: 50%; width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-color); transition: all 0.3s ease;
+        }
+        .theme-toggle:hover { background: var(--icon-bg); transform: scale(1.05); }
+        .theme-toggle svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        .sun-icon { display: block; }
+        .moon-icon { display: none; }
+        [data-theme="light"] .sun-icon { display: none; }
+        [data-theme="light"] .moon-icon { display: block; }
+
+        .nav-lockup { display: flex; align-items: center; gap: 16px; }
+        .nav-lockup span {
+            font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 0.02em; font-weight: 400;
+        }
+
+        .nav-badge {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--nav-badge-bg); color: var(--nav-badge-text);
+            padding: 10px 20px; border-radius: 99px;
+            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;
+            border: 1px solid var(--border-color); font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px; background-color: var(--accent-rose);
+            border-radius: 50%; animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0% { box-shadow: 0 0 0 0 rgba(255, 77, 109, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 77, 109, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 77, 109, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-right { display: none; }
+            .nav-container { grid-template-columns: auto 1fr; }
+            .nav-center { justify-content: flex-end; }
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 85vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 80px 24px 180px;
+        }
+        .hero-lockup {
+            display: flex; flex-direction: column; align-items: center; gap: 24px; margin-bottom: 32px;
+        }
+        /* Editorial serif hero logo */
+        .hero-lockup h1 { font-size: clamp(3.5rem, 7vw, 6rem); letter-spacing: 0.15em; line-height: 1; font-weight: 400; }
+        
+        .hero-eyebrow {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em;
+            color: var(--text-muted); margin-bottom: 32px; font-weight: 600;
+        }
+        .hero-tagline {
+            font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.2;
+            margin-bottom: 56px; max-width: 900px; font-weight: 400;
+        }
+        .hero-tagline em { font-style: italic; color: var(--accent-rose); }
+
+        /* Elegant Form */
+        .signup-form {
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+            width: 100%; max-width: 520px;
+        }
+        .form-row { display: flex; width: 100%; gap: 12px; justify-content: center; }
+        .signup-form input {
+            flex: 1; padding: 18px 24px; border-radius: 12px;
+            border: 1px solid var(--border-color); background: rgba(255,255,255,0.02);
+            color: var(--text-color); font-family: inherit; font-size: 1.05rem;
+            outline: none; transition: all 0.3s ease;
+        }
+        [data-theme="light"] .signup-form input { background: transparent; }
+        .signup-form input::placeholder { color: var(--text-muted); }
+        .signup-form input:focus { border-color: rgba(255, 77, 109, 0.5); }
+        
+        .signup-form button {
+            padding: 0 32px; border-radius: 12px; border: none;
+            background: var(--accent-rose); color: white;
+            font-family: inherit; font-weight: 600; font-size: 1.05rem; cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+        .signup-form button:hover {
+            transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 77, 109, 0.25);
+        }
+        @media (max-width: 480px) {
+            .form-row { flex-direction: column; }
+            .signup-form button { padding: 18px; }
+        }
+        
+        .success-msg {
+            display: none; color: var(--accent-orange); font-size: 1.05rem;
+            animation: fadeIn 0.5s ease forwards; padding: 16px; font-weight: 500;
+        }
+        .form-error {
+            display: none; color: var(--accent-rose); font-size: 0.95rem;
+            animation: fadeIn 0.3s ease forwards; padding: 4px 0 0; font-weight: 500;
+        }
+        .hero-fine-print { font-size: 0.85rem; color: var(--text-muted); margin-top: 24px; text-align: center; }
+        .hero-fine-print span { color: var(--accent-rose); font-weight: 500; }
+
+        /* Highly Performant Marquee */
+        .marquee-container {
+            width: 100%; overflow: hidden;
+            border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
+            padding: 40px 0; background: var(--marquee-bg);
+            display: flex; transition: background 0.3s ease;
+        }
+        .marquee-track {
+            display: flex; width: max-content;
+            animation: scrollMarquee 50s linear infinite;
+            will-change: transform;
+        }
+        .marquee-content {
+            display: flex; flex-shrink: 0; align-items: center;
+            gap: 80px; padding-right: 80px;
+        }
+        .marquee-item {
+            font-family: var(--font-display); font-style: italic; font-size: 1.6rem;
+            color: var(--text-muted); display: flex; align-items: center; gap: 80px;
+            white-space: nowrap; font-weight: 400;
+        }
+        .marquee-item::after {
+            content: '•'; font-style: normal; font-size: 0.6rem; color: var(--border-color);
+        }
+        @keyframes scrollMarquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
+
+        /* Sections Common */
+        section { padding: 180px 0; position: relative; }
+        .section-eyebrow {
+            font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.2em;
+            color: var(--text-muted); margin-bottom: 24px; display: block; font-weight: 600;
+        }
+        .section-heading { font-size: clamp(2.5rem, 4vw, 3.5rem); margin-bottom: 100px; line-height: 1.1; font-weight: 400; }
+
+        /* How it works */
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; }
+        @media (max-width: 900px) { .steps-grid { grid-template-columns: 1fr; gap: 40px; } }
+        .step-card {
+            padding: 56px 48px; border-radius: 28px; border: 1px solid;
+            transition: transform 0.5s ease, background 0.5s ease, border-color 0.5s ease;
+        }
+        .step-card:nth-child(1) { background: var(--card-bg-1); border-color: var(--card-border-1); }
+        .step-card:nth-child(2) { background: var(--card-bg-2); border-color: var(--card-border-2); }
+        .step-card:nth-child(3) { background: var(--card-bg-3); border-color: var(--card-border-3); }
+        
+        .step-card:hover { transform: translateY(-10px); }
+        .step-number {
+            font-family: var(--font-display); font-size: 5rem; font-style: italic;
+            line-height: 1; margin-bottom: 32px; opacity: 0.8; font-weight: 400;
+        }
+        .step-card:nth-child(1) .step-number { color: var(--accent-rose); }
+        .step-card:nth-child(2) .step-number { color: var(--accent-orange); }
+        .step-card:nth-child(3) .step-number { color: var(--accent-violet); }
+        .step-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 20px; font-family: var(--font-display); font-weight: 400; }
+        .step-desc { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; }
+
+        /* About */
+        .about-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 120px; align-items: start; }
+        @media (max-width: 1024px) { .about-grid { grid-template-columns: 1fr; gap: 80px; } }
+        .about-left h2 { font-size: clamp(2rem, 3.5vw, 3.2rem); line-height: 1.2; padding-right: 20px; font-weight: 400; }
+        .about-left em { font-style: italic; color: var(--accent-rose); }
+        .about-rows { display: flex; flex-direction: column; gap: 48px; }
+        .about-row {
+            padding-left: 40px; border-left: 3px solid;
+            background: linear-gradient(90deg, var(--icon-bg) 0%, rgba(255,255,255,0) 100%);
+            padding-top: 32px; padding-bottom: 32px; border-radius: 0 20px 20px 0;
+            transition: background 0.5s ease;
+        }
+        .about-row:nth-child(1) { border-color: var(--accent-rose); }
+        .about-row:nth-child(2) { border-color: var(--accent-orange); }
+        .about-row:nth-child(3) { border-color: var(--accent-violet); }
+        .about-row-title { font-size: 1.3rem; font-weight: 400; font-family: var(--font-display); margin-bottom: 16px; }
+        .about-row-desc { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; }
+
+        /* Plus Banner */
+        .plus-banner {
+            background: var(--plus-bg); border: 1px solid var(--border-color);
+            border-radius: 40px; padding: 64px 48px; text-align: center;
+            position: relative; overflow: hidden; transition: background 0.5s ease;
+        }
+        .plus-banner::before {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; height: 100%; background: radial-gradient(circle, var(--plus-glow) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .plus-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+        .plus-banner h2 { font-size: clamp(2.5rem, 4vw, 3.2rem); margin: 24px 0 32px; font-weight: 400; }
+        .plus-banner p { color: var(--text-muted); font-size: 1.15rem; margin-bottom: 48px; max-width: 540px; }
+        .plus-btn {
+            background: var(--plus-btn-text); color: var(--plus-btn-bg);
+            padding: 20px 48px; border-radius: 99px; font-weight: 600; font-size: 1.15rem;
+            transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border: none; font-family: inherit;
+        }
+        .plus-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--icon-bg); }
+
+        /* FAQ */
+        .faq-section { max-width: 900px; margin: 0 auto; }
+        details { border-bottom: 1px solid var(--border-color); padding: 40px 0; transition: border-color 0.3s; }
+        
+        /* Elegant Serif for Questions */
+        details > summary {
+            list-style: none; font-size: 1.6rem; font-weight: 400; font-family: var(--font-display);
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        }
+        details > summary::-webkit-details-marker { display: none; }
+        
+        .faq-icon { font-size: 1.5rem; font-weight: 300; font-family: sans-serif; transition: transform 0.3s ease; color: var(--accent-rose); }
+        details[open] .faq-icon { transform: rotate(45deg); }
+        .faq-content { padding-top: 24px; color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; padding-right: 48px; animation: fadeIn 0.3s ease; }
+
+        /* Subtle, Wide Footer */
+        footer {
+            padding: 80px 0 120px; border-top: 1px solid var(--border-color);
+            margin-top: 160px; transition: border-color 0.3s ease;
+        }
+        .footer-content {
+            display: flex; justify-content: space-between; align-items: flex-start;
+        }
+        .footer-left { display: flex; flex-direction: column; gap: 24px; }
+        .footer-logo { display: flex; align-items: center; gap: 12px; }
+        .footer-logo span { font-family: var(--font-display); font-size: 1.8rem; font-weight: 400; letter-spacing: 0.02em; }
+        .footer-tagline { font-family: var(--font-display); font-size: 1.4rem; color: var(--text-muted); font-weight: 400; font-style: italic; }
+        
+        .footer-links { display: flex; gap: 32px; align-items: center; padding-top: 12px; }
+        .social-icon { width: 22px; height: 22px; fill: var(--text-muted); transition: fill 0.2s ease, transform 0.2s ease; }
+        .footer-links a:hover .social-icon { fill: var(--text-color); transform: translateY(-2px); }
+
+        @media (max-width: 600px) {
+            .footer-content { flex-direction: column; gap: 32px; align-items: flex-start; }
+        }
+
+        /* Scroll Reveal Utility */
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <!-- Cursor Glow -->
+    <div id="cursor-glow"></div>
+
+    <!-- Background Aurora -->
+    <div class="aurora-container">
+        <div class="aurora-blob aurora-1"></div>
+        <div class="aurora-blob aurora-2"></div>
+    </div>
+
+    <!-- Intro Splash -->
+    <div class="intro-splash">
+        <!-- Restored Red SVG Heart -->
+        <svg viewBox="0 0 24 24" class="splash-heart">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <h1 class="font-display">aymora</h1>
+    </div>
+
+    <!-- Nav -->
+    <nav class="container nav-container">
+        <div class="nav-left">
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light/dark theme">
+                <!-- Sun Icon -->
+                <svg class="sun-icon" viewBox="0 0 24 24">
+                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75zM6.166 17.834a.75.75 0 001.06 1.06l1.59-1.591a.75.75 0 10-1.06-1.061l-1.591 1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM5.106 6.166a.75.75 0 001.06-1.06l-1.59-1.59a.75.75 0 10-1.061 1.061l1.591 1.59z"/>
+                </svg>
+                <!-- Moon Icon -->
+                <svg class="moon-icon" viewBox="0 0 24 24">
+                    <path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="nav-center">
+            <div class="nav-lockup">
+                <img src="assets/logo-icon.jpg" class="logo-icon" alt="Aymora" style="width:36px; height:36px;">
+                <span>aymora</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="nav-badge">
+                <div class="pulse-dot"></div>
+                <span class="waitlist-count">&hellip;</span> on the list
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        
+        <!-- Hero Section -->
+        <section class="hero container reveal active">
+            <div class="hero-lockup">
+                <!-- Clean editorial serif logo for hero -->
+                <h1 class="font-display">aymora</h1>
+            </div>
+            
+            <span class="hero-eyebrow">AI MATCHMAKING FOR INDIA'S 200M+ DATERS</span>
+            
+            <h2 class="hero-tagline font-display">
+                Meet the people <em>you should've</em> met.
+            </h2>
+            
+            <form class="signup-form" id="waitlist-form" onsubmit="handleWaitlistSubmit(event)">
+                <div class="form-row">
+                    <input type="email" id="email-input" placeholder="your@email.com" required aria-label="Email address">
+                    <button type="submit">Join the list</button>
+                </div>
+                <!-- Honeypot: hidden from real users via off-screen positioning, not display:none
+                     (some bots skip display:none fields). Real submissions leave it empty. -->
+                <div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+                    <label for="website-field">Leave this field empty</label>
+                    <input type="text" id="website-field" name="website" tabindex="-1" autocomplete="off">
+                </div>
+                <div class="success-msg" id="success-message">You're on the list. Keep an eye on your inbox.</div>
+                <div class="form-error" id="form-error"></div>
+            </form>
+            
+            <p class="hero-fine-print">
+                Free <span>Aymora Plus</span> for the first 1,000. Spots counted at email verification.
+            </p>
+        </section>
+
+        <!-- Highly Performant Marquee -->
+        <div class="marquee-container reveal">
+            <div class="marquee-track">
+                <!-- First Set -->
+                <div class="marquee-content">
+                    <div class="marquee-item">Meet the people you should've met</div>
+                    <div class="marquee-item">Connections meant to be</div>
+                    <div class="marquee-item">Free Plus for the first 1,000</div>
+                    <div class="marquee-item">Meet the people you should've met</div>
+                    <div class="marquee-item">Connections meant to be</div>
+                    <div class="marquee-item">Free Plus for the first 1,000</div>
+                    <div class="marquee-item">Meet the people you should've met</div>
+                    <div class="marquee-item">Connections meant to be</div>
+                    <div class="marquee-item">Free Plus for the first 1,000</div>
+                </div>
+                <!-- Duplicate Set for Seamless Infinite Loop -->
+                <div class="marquee-content" aria-hidden="true">
+                    <div class="marquee-item">Meet the people you should've met</div>
+                    <div class="marquee-item">Connections meant to be</div>
+                    <div class="marquee-item">Free Plus for the first 1,000</div>
+                    <div class="marquee-item">Meet the people you should've met</div>
+                    <div class="marquee-item">Connections meant to be</div>
+                    <div class="marquee-item">Free Plus for the first 1,000</div>
+                    <div class="marquee-item">Meet the people you should've met</div>
+                    <div class="marquee-item">Connections meant to be</div>
+                    <div class="marquee-item">Free Plus for the first 1,000</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How it works -->
+        <section class="container reveal">
+            <span class="section-eyebrow">How it works</span>
+            <h2 class="section-heading font-display">Three steps. No swiping.</h2>
+            
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <h3 class="step-title">Take a short questionnaire</h3>
+                    <p class="step-desc">A few thoughtful questions, not a checklist of hobbies. Enough for us to understand who you really are.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <h3 class="step-title">AI that actually gets you</h3>
+                    <p class="step-desc">Your answers shape a personality profile our AI uses to find real compatibility, not just shared interests.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <h3 class="step-title">Introduced when it's mutual</h3>
+                    <p class="step-desc">One intentional introduction at a time. Every match is meant.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About -->
+        <section class="container reveal">
+            <div class="about-grid">
+                <div class="about-left">
+                    <span class="section-eyebrow">About</span>
+                    <h2 class="font-display">Dating apps made meeting people feel like work. <br><em>We're undoing that.</em></h2>
+                </div>
+                <div class="about-rows">
+                    <div class="about-row">
+                        <h4 class="about-row-title">What we are</h4>
+                        <p class="about-row-desc">An AI matchmaker, not another swipe deck. Aymora gets to know you, then introduces you to the people you were meant to meet.</p>
+                    </div>
+                    <div class="about-row">
+                        <h4 class="about-row-title">What we're building</h4>
+                        <p class="about-row-desc">Matching where understanding comes first: mutual interest before introductions, conversation before judgment, privacy by default.</p>
+                    </div>
+                    <div class="about-row">
+                        <h4 class="about-row-title">How we're new</h4>
+                        <p class="about-row-desc">Apps profit when you keep swiping. We win when you stop, because it worked.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Plus Banner -->
+        <section class="container reveal">
+            <div class="plus-banner">
+                <div class="plus-content">
+                    <span class="section-eyebrow">Early access perk</span>
+                    <h2 class="font-display">Free Aymora Plus for the first 1,000 users.</h2>
+                    <p><span class="waitlist-count">&hellip;</span> people have joined. Your spot counts once your email is verified.</p>
+                    <button class="plus-btn" onclick="scrollToHero()">Claim your spot</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="container faq-section reveal">
+            <span class="section-eyebrow">Questions</span>
+            <h2 class="section-heading font-display">Before you ask.</h2>
+            
+            <div class="faq-list">
+                <details>
+                    <summary>Is Aymora free? <span class="faq-icon">+</span></summary>
+                    <div class="faq-content">Yes. And the first 1,000 people on the list get Aymora Plus free when we launch.</div>
+                </details>
+                <details>
+                    <summary>Who can join? <span class="faq-icon">+</span></summary>
+                    <div class="faq-content">Anyone 18 or older with a valid email. Just verify the one you sign up with.</div>
+                </details>
+                <details>
+                    <summary>When does it launch? <span class="faq-icon">+</span></summary>
+                    <div class="faq-content">Early access opens in waves, in list order. The earlier you join, the earlier you're in.</div>
+                </details>
+                <details>
+                    <summary>How does the matching actually work? <span class="faq-icon">+</span></summary>
+                    <div class="faq-content">Our AI builds a picture of who you are from what you tell it, then looks for genuine compatibility. Introductions happen only when interest is mutual.</div>
+                </details>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="container reveal">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    <img src="assets/logo-icon.jpg" class="logo-icon" alt="Aymora" style="width:24px; height:24px;">
+                    <span>aymora</span>
+                </div>
+                <span class="footer-tagline">Meet the people you should've met</span>
+            </div>
+            <div class="footer-links">
+                <a href="https://instagram.com/aymora.in" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <!-- SVG Instagram Icon -->
+                    <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/company/aymora/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                    <!-- SVG LinkedIn Icon -->
+                    <svg class="social-icon" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                </a>
+                <a href="mailto:aymora.hiring@gmail.com" aria-label="Email">
+                    <!-- SVG Email Icon -->
+                    <svg class="social-icon" viewBox="0 0 24 24"><path d="M0 3v18h24v-18h-24zm21.518 2l-9.518 7.713-9.518-7.713h19.036zm-19.518 14v-11.817l10 8.104 10-8.104v11.817h-20z"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+        });
+
+        // --- Live waitlist API wiring ---
+        // No build step for this page, so environment is detected at runtime
+        // by hostname rather than injected at build time. The prod URL here
+        // must match the backend web service's actual deployed URL.
+        const API_BASE = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+            ? 'http://localhost:8787'
+            : 'https://aymora-api.onrender.com';
+
+        async function refreshWaitlistCount() {
+            try {
+                const res = await fetch(`${API_BASE}/api/waitlist/count`);
+                if (!res.ok) throw new Error(`status ${res.status}`);
+                const data = await res.json();
+                const formatted = data.verified_count.toLocaleString('en-IN');
+                document.querySelectorAll('.waitlist-count').forEach((el) => {
+                    el.textContent = formatted;
+                });
+            } catch (err) {
+                console.error('[aymora] failed to fetch waitlist count', err);
+            }
+        }
+
+        function showFormError(text) {
+            const errorEl = document.getElementById('form-error');
+            errorEl.textContent = text;
+            errorEl.style.display = 'block';
+        }
+
+        function clearFormError() {
+            const errorEl = document.getElementById('form-error');
+            errorEl.style.display = 'none';
+            errorEl.textContent = '';
+        }
+
+        // Form Submission
+        async function handleWaitlistSubmit(e) {
+            e.preventDefault();
+            clearFormError();
+
+            const form = document.getElementById('waitlist-form');
+            const row = form.querySelector('.form-row');
+            const msg = document.getElementById('success-message');
+            const emailInput = document.getElementById('email-input');
+            const honeypot = document.getElementById('website-field');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            submitBtn.disabled = true;
+            try {
+                const res = await fetch(`${API_BASE}/api/waitlist`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailInput.value, website: honeypot.value }),
+                });
+
+                if (res.status === 202) {
+                    row.style.display = 'none';
+                    msg.textContent = "You're on the list. Check your email to verify and lock in your spot.";
+                    msg.style.display = 'block';
+                    refreshWaitlistCount();
+                    return;
+                }
+
+                if (res.status === 429) {
+                    showFormError('Too many attempts. Please try again in a bit.');
+                    return;
+                }
+
+                const data = await res.json().catch(() => ({}));
+                if (data.error === 'disposable_email_not_allowed') {
+                    showFormError('Please use a permanent email address, not a disposable one.');
+                } else {
+                    showFormError('Something went wrong. Please check your email and try again.');
+                }
+            } catch (err) {
+                console.error('[aymora] waitlist signup failed', err);
+                showFormError('Could not reach the server. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Handles the redirect back from the email verification link:
+        // /?verified=1&rank=N on success, /?verified=0 on an invalid/expired link.
+        function handleVerificationRedirect() {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.has('verified')) return;
+
+            const form = document.getElementById('waitlist-form');
+            const row = form.querySelector('.form-row');
+            const msg = document.getElementById('success-message');
+
+            if (params.get('verified') === '1') {
+                const rank = params.get('rank');
+                row.style.display = 'none';
+                msg.textContent = rank
+                    ? `You're verified — #${rank} on the list!`
+                    : "You're verified and on the list!";
+                msg.style.display = 'block';
+            } else {
+                showFormError('That verification link is invalid or has expired. Please sign up again below.');
+            }
+
+            window.history.replaceState({}, document.title, window.location.pathname);
+            scrollToHero();
+        }
+
+        refreshWaitlistCount();
+        handleVerificationRedirect();
+
+        function scrollToHero() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { document.getElementById('email-input').focus(); }, 800);
+        }
+
+        // Hardware-Accelerated Cursor Glow
+        const cursorGlow = document.getElementById('cursor-glow');
+        let hideTimeout;
+        document.addEventListener('mousemove', (e) => {
+            cursorGlow.style.transform = `translate3d(${e.clientX - 200}px, ${e.clientY - 200}px, 0)`;
+            cursorGlow.style.opacity = '1';
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => { cursorGlow.style.opacity = '0'; }, 1000);
+        });
+        document.addEventListener('mouseleave', () => { cursorGlow.style.opacity = '0'; });
+
+        // Scroll Reveal
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { root: null, threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => {
+            if (!el.classList.contains('active')) revealObserver.observe(el);
+        });
+    </script>
+</body>
+</html>

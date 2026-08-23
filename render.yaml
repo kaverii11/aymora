@@ -1,0 +1,60 @@
+# Render Blueprint: New + > Blueprint in the Render dashboard, point it at
+# this repo, and it provisions both services below in one go. Service names
+# are load-bearing — src/config.ts's APP_BASE_URL/WEB_BASE_URL defaults and
+# index.html's API_BASE both assume aymora-api.onrender.com /
+# aymora-web.onrender.com. Rename consistently in all three places if you
+# change them.
+#
+# Everything marked `sync: false` is a secret Render will prompt you to enter
+# by hand in its dashboard after the blueprint is applied — never put real
+# secrets in this file, it's committed to git.
+
+services:
+  - type: web
+    name: aymora-api
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_BASE_URL
+        value: https://aymora-api.onrender.com
+      - key: WEB_BASE_URL
+        value: https://aymora-web.onrender.com
+      - key: GEMINI_MODEL
+        value: gemini-3.6-flash
+      - key: EMAIL_FROM
+        value: Aymora <hello@aymora.in>
+      - key: DATABASE_URL
+        sync: false # Supabase connection string (Project Settings > Database)
+      - key: REDIS_URL
+        sync: false # Upstash Redis "rediss://" URL
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false # leave blank to keep payments stubbed (returns 501)
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
+  - type: web
+    name: aymora-web
+    runtime: static
+    plan: free
+    region: singapore
+    buildCommand: "true" # no build step: index.html is served as-is
+    staticPublishPath: .
